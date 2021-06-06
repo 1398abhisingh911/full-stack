@@ -35,56 +35,30 @@ app.get("/", (req, res) => {});
 
 app.post("/login", (req, res) => {
   const { Email, Password } = req.body;
-  const MatchedUser = Users.find(
-    user => user.Email === Email && user.Password === Password
-  );
-  if (MatchedUser) {
-    req.session.User = MatchedUser;
-    res.redirect("/");
-  } else {
-    res.redirect("/?error=true");
-  }
 });
 
 app.post("/register", (req, res) => {
   const { Email, Password, FullName } = req.body;
+  console.log({ Email, Password, FullName });
   const db = req.app.get("db");
   db.schema.hasTable("users").then(exists => {
     if (!exists) {
-      db.schema
-        .createTable("users", table => {
-          table.increments("id").primary();
-          table.string("name");
-          table.string("email");
-          table.string("password");
-        })
-        .then(() => {
-          db("users").insert({
-            name: FullName,
-            email: Email,
-            password: Password
-          });
-          res.json("done after table");
-        });
-    } else {
-      db("users")
-        .where({ email: Email })
-        .then(rows => {
-          if (rows.length !== 0) {
-            res.json("already present");
-          } else {
-            db("users").insert({
-              name: FullName,
-              email: Email,
-              password: Password
-            });
-          }
-          res.json("done insertion");
-        });
+      db.schema.createTable("users", table => {
+        table.increments("id").primary();
+        table.string("name");
+        table.string("email");
+        table.string("password");
+      });
     }
+
+    db("users").insert({
+      name: FullName,
+      email: Email,
+      password: Password
+    });
+    res.json("Record Inserted");
   });
 });
-
 // Listen it in a particular port.
 app.listen(port, () => {
   console.log(`Server Started in Port ${port}.`);
