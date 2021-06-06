@@ -28,7 +28,6 @@ app.use(
   })
 );
 app.use(fileUpload());
-const Users = [];
 
 app.use("/", express.static("../src/App"));
 app.get("/", (req, res) => {});
@@ -41,24 +40,30 @@ app.post("/register", (req, res) => {
   const { Email, Password, FullName } = req.body;
   console.log({ Email, Password, FullName });
   const db = req.app.get("db");
-  db.schema.hasTable("users").then(exists => {
-    if (!exists) {
-      db.schema.createTable("users", table => {
-        table.increments("id").primary();
-        table.string("name");
-        table.string("email");
-        table.string("password");
+  db.schema
+    .hasTable("users")
+    .then(exists => {
+      if (!exists) {
+        db.schema.createTable("users", table => {
+          table.increments("id").primary();
+          table.string("name");
+          table.string("email");
+          table.string("password");
+        });
+      }
+    })
+    .then(() => {
+      db("users").insert({
+        name: FullName,
+        email: Email,
+        password: Password
       });
-    }
-
-    db("users").insert({
-      name: FullName,
-      email: Email,
-      password: Password
+    })
+    .then(() => {
+      res.json("Record Inserted");
     });
-    res.json("Record Inserted");
-  });
 });
+
 // Listen it in a particular port.
 app.listen(port, () => {
   console.log(`Server Started in Port ${port}.`);
