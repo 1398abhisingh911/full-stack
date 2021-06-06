@@ -59,17 +59,32 @@ app.post("/register", (req, res) => {
           table.string("password");
         })
         .then(() => {
-          console.log("Table Created");
-          res.json("done");
+          db("users").insert({
+            name: FullName,
+            email: Email,
+            password: Password
+          });
+          res.json("done after table");
         });
     } else {
-      console.log("Table already present");
-      res.json("done");
+      db("users")
+        .where({ email: Email })
+        .then(rows => {
+          if (rows.length !== 0) {
+            res.json("already present");
+          } else {
+            db("users").insert({
+              name: FullName,
+              email: Email,
+              password: Password
+            });
+          }
+          res.json("done insertion");
+        });
     }
   });
 });
 
-// Route Handlers.
 // Listen it in a particular port.
 app.listen(port, () => {
   console.log(`Server Started in Port ${port}.`);
