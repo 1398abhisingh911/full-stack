@@ -61,9 +61,29 @@ app.post("/register", (req, res) => {
               res.json("Record Inserted");
             });
         });
+    } else {
+      db("users")
+        .where({ email: Email })
+        .then(rows => {
+          if (rows.length === 1) {
+            res.json("Record already Inserted");
+          } else {
+            db("users")
+              .insert({
+                name: FullName,
+                email: Email,
+                password: Password
+              })
+              .then(() => {
+                console.log("record inserted");
+                res.json("Record Inserted");
+              });
+          }
+        });
     }
   });
 });
+
 // Listen it in a particular port.
 app.listen(port, () => {
   console.log(`Server Started in Port ${port}.`);
