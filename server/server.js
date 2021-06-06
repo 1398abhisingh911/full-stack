@@ -34,6 +34,16 @@ app.get("/", (req, res) => {});
 
 app.post("/login", (req, res) => {
   const { Email, Password } = req.body;
+  const db = req.app.get("db");
+  db("users")
+    .where({ email: Email, password: Password })
+    .then(rows => {
+      if (rows.length === 1) {
+        res.json("Welcome to Dashboard");
+      } else {
+        res.json("Wrong Credentials");
+      }
+    });
 });
 
 app.post("/register", (req, res) => {
